@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+*, *::before, *::after {
+  font-family: inherit;
+  color: inherit;
+}
+
+html {
+  font-size: 20px;
+  background-color: #ffeff4;
+  background-image: radial-gradient(ellipse 400px 250px at center, #ffd0b0ad 0%, transparent 100%);
+  color: #B2004A;
+}
+
+body {
+  background: transparent;
+}
