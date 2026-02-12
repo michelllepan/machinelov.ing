@@ -5,8 +5,8 @@ import "./globals.css";
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ML Valentines",
-  description: "Machine Learning themed Valentine's messages",
+  title: "ml valentines",
+  description: "machine learning is a love language too",
 };
 
 export default function RootLayout({
