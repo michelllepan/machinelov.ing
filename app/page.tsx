@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 
 const PATTERN = "<3";
 const COLS = 160;
@@ -11,11 +11,6 @@ const MESSAGE_WIDTH = 36;
 interface Valentine {
   id: number;
   message: string;
-}
-
-interface CellData {
-  char: string;
-  isMessage: boolean;
 }
 
 function wrapText(text: string, width: number): string[] {
@@ -34,6 +29,58 @@ function wrapText(text: string, width: number): string[] {
   return lines;
 }
 
+// Static background grid — never re-renders
+const bgRows: string[] = Array.from({ length: ROWS }, (_, row) => {
+  const offset = row % PATTERN.length;
+  const line = PATTERN.repeat(Math.ceil((COLS + offset) / PATTERN.length));
+  return line.slice(offset, offset + COLS);
+});
+
+const BackgroundGrid = memo(function BackgroundGrid() {
+  return (
+    <>
+      {bgRows.map((row, r) => (
+        <div key={r} style={{ whiteSpace: "pre" }}>
+          {row.split("").map((char, c) => (
+            <span key={c} style={{ opacity: 0, color: "#E57FA9" }}>
+              {char}
+            </span>
+          ))}
+        </div>
+      ))}
+    </>
+  );
+});
+
+function computeMessagePosition(
+  lines: string[],
+  charWidth: number,
+  lineHeight: number
+) {
+  const centerCol = Math.floor(window.innerWidth / 2 / charWidth);
+  const centerRow = Math.floor(window.innerHeight / 2 / lineHeight);
+  const startRow = Math.floor(centerRow - lines.length / 2);
+
+  const msgCells = new Set<string>();
+  for (let i = 0; i < lines.length; i++) {
+    const startCol = Math.floor(centerCol - lines[i].length / 2);
+    for (let j = 0; j < lines[i].length; j++) {
+      const r = startRow + i;
+      const c = startCol + j;
+      if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+        msgCells.add(`${r}-${c}`);
+      }
+    }
+  }
+
+  return {
+    startRow,
+    centerCol,
+    messageCells: msgCells,
+    top: startRow * lineHeight,
+  };
+}
+
 export default function Home() {
   const [valentines, setValentines] = useState<Valentine[]>([]);
   const [currentValentine, setCurrentValentine] = useState<Valentine | null>(
@@ -43,9 +90,19 @@ export default function Home() {
     charWidth: number;
     lineHeight: number;
   } | null>(null);
+  const [messagePos, setMessagePos] = useState<{
+    top: number;
+    startRow: number;
+    centerCol: number;
+  } | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const visibleRef = useRef<Set<string>>(new Set());
   const messageCellsRef = useRef<Set<string>>(new Set());
+
+  const lines = useMemo(
+    () => (currentValentine ? wrapText(currentValentine.message, MESSAGE_WIDTH) : []),
+    [currentValentine]
+  );
 
   useEffect(() => {
     fetch("/valentines.json")
@@ -72,45 +129,41 @@ export default function Home() {
     });
   });
 
-  // Build grid with message embedded
-  const { grid, messageCells } = useMemo(() => {
-    const cells: CellData[][] = Array.from({ length: ROWS }, (_, row) => {
-      const offset = row % PATTERN.length;
-      const line = PATTERN.repeat(Math.ceil((COLS + offset) / PATTERN.length));
-      return line
-        .slice(offset, offset + COLS)
-        .split("")
-        .map((char) => ({ char, isMessage: false }));
-    });
+  // Recalculate message position on resize or valentine change
+  const updatePosition = useCallback(() => {
+    if (!metrics || lines.length === 0) return;
+    const pos = computeMessagePosition(lines, metrics.charWidth, metrics.lineHeight);
 
-    const msgCells = new Set<string>();
-
-    if (currentValentine && metrics) {
-      const centerCol = Math.floor(
-        window.innerWidth / 2 / metrics.charWidth
-      );
-      const centerRow = Math.floor(
-        window.innerHeight / 2 / metrics.lineHeight
-      );
-      const lines = wrapText(currentValentine.message, MESSAGE_WIDTH);
-      const startRow = Math.floor(centerRow - lines.length / 2);
-
-      for (let i = 0; i < lines.length; i++) {
-        const text = lines[i];
-        const startCol = Math.floor(centerCol - text.length / 2);
-        for (let j = 0; j < text.length; j++) {
-          const r = startRow + i;
-          const c = startCol + j;
-          if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
-            cells[r][c] = { char: text[j], isMessage: true };
-            msgCells.add(`${r}-${c}`);
-          }
+    // Hide any revealed hearts that now overlap with message cells
+    const container = gridRef.current;
+    if (container) {
+      for (const key of visibleRef.current) {
+        if (pos.messageCells.has(key)) {
+          const [r, c] = key.split("-").map(Number);
+          const span = container.children[r]?.children[c] as HTMLElement;
+          if (span) span.style.opacity = "0";
         }
+      }
+      // Remove those keys from visible set
+      for (const key of pos.messageCells) {
+        visibleRef.current.delete(key);
       }
     }
 
-    return { grid: cells, messageCells: msgCells };
-  }, [currentValentine, metrics]);
+    messageCellsRef.current = pos.messageCells;
+    setMessagePos({ top: pos.top, startRow: pos.startRow, centerCol: pos.centerCol });
+  }, [metrics, lines]);
+
+  useEffect(() => {
+    updatePosition();
+  }, [updatePosition]);
+
+  useEffect(() => {
+    if (!metrics) return;
+    const handleResize = () => updatePosition();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [metrics, updatePosition]);
 
   // Clean up revealed hearts when valentine changes
   useEffect(() => {
@@ -123,8 +176,7 @@ export default function Home() {
       }
     }
     visibleRef.current = new Set();
-    messageCellsRef.current = messageCells;
-  }, [messageCells]);
+  }, [currentValentine]);
 
   // Mousemove handler
   useEffect(() => {
@@ -205,21 +257,32 @@ export default function Home() {
         className="fixed inset-0 overflow-hidden select-none pointer-events-none"
         style={{ lineHeight: "1.2" }}
       >
-        {grid.map((row, r) => (
-          <div key={r} style={{ whiteSpace: "pre" }}>
-            {row.map((cell, c) => (
-              <span
-                key={c}
-                style={{
-                  opacity: cell.isMessage ? 1 : 0,
-                  color: cell.isMessage ? undefined : "#E57FA9",
-                }}
-              >
-                {cell.char}
-              </span>
-            ))}
+        <BackgroundGrid />
+        {metrics && messagePos && lines.length > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: messagePos.top,
+              left: 0,
+              right: 0,
+              lineHeight: "1.2",
+              whiteSpace: "pre",
+            }}
+          >
+            {lines.map((line, i) => {
+              const startCol = Math.floor(messagePos.centerCol - line.length / 2);
+              return (
+                <div key={i} style={{ whiteSpace: "pre" }}>
+                  {/* Invisible spacer to align to grid column */}
+                  <span style={{ visibility: "hidden" }}>
+                    {bgRows[messagePos.startRow + i]?.slice(0, startCol) ?? ""}
+                  </span>
+                  {line}
+                </div>
+              );
+            })}
           </div>
-        ))}
+        )}
       </div>
       {currentValentine && (
         <div className="fixed bottom-0 left-0 right-0 pb-12 text-center pointer-events-none">
