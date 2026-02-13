@@ -16,7 +16,7 @@ export default function AboutPage() {
         <br/>
 
         <p className="mb-4">
-          website created by michelle pan.
+          website created by <a href="https://x.com/michelllepan/status/2022455336117113052" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>michelle pan</a>.
         </p>
         <p>
           valentines contributed by
