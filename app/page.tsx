@@ -454,7 +454,7 @@ export default function Home() {
             style={{
               position: "absolute",
               top: messagePos.buttonRow * metrics.lineHeight - 8,
-              left: "50%",
+              left: isMobile ? "50%" : messagePos.centerCol * metrics.charWidth,
               transform: "translateX(-50%)",
               display: "flex",
               flexDirection: isMobile ? "column" : "row",
