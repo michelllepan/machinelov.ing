@@ -394,16 +394,15 @@ export default function Home() {
         {metrics && messagePos && currentValentine && (
           <button
             onClick={getNewValentine}
-            className="pointer-events-auto border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+            className="pointer-events-auto border-2 border-current rounded-lg bg-transparent -translate-x-1/2 hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
             style={{
               position: "absolute",
               top: messagePos.buttonRow * metrics.lineHeight - 8,
-              left: (messagePos.buttonStartCol) * metrics.charWidth + 3,
+              left: "50%",
               padding: "6px 10px",
               lineHeight: "1.2",
               whiteSpace: "pre",
               cursor: "pointer",
-              float: "left",
             }}
           >
             {BUTTON_TEXT}
