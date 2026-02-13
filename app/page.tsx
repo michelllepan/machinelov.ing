@@ -8,6 +8,8 @@ const ROWS = 60;
 const THRESHOLD = 12;
 const MESSAGE_WIDTH = 36;
 const BUTTON_TEXT = "new valentine";
+const SHARE_TEXT = "share";
+const COPIED_TEXT = "copied!";
 const BUTTON_PADDING_COLS = 1; // chars of horizontal padding inside the border
 
 interface Valentine {
@@ -96,14 +98,17 @@ function computeMessagePosition(
   // Button row: ~5 rows from the bottom of the visible area
   const totalVisibleRows = Math.floor(window.innerHeight / lineHeight);
   const buttonRow = Math.min(totalVisibleRows - 5, ROWS - 1);
+  const shareTextLen = Math.max(SHARE_TEXT.length, COPIED_TEXT.length) + BUTTON_PADDING_COLS * 2;
   const buttonTextLen = BUTTON_TEXT.length + BUTTON_PADDING_COLS * 2;
-  const buttonStartCol = Math.floor(centerCol - buttonTextLen / 2);
+  const gap = 2; // chars between buttons
+  const totalButtonWidth = buttonTextLen + gap + shareTextLen;
+  const buttonsStartCol = Math.floor(centerCol - totalButtonWidth / 2);
 
   // Mark button cells as message cells so hover doesn't reveal hearts behind them
   const bRow = buttonRow;
   if (bRow >= 0 && bRow < ROWS) {
-    for (let j = 0; j < buttonTextLen; j++) {
-      const c = buttonStartCol + j;
+    for (let j = 0; j < totalButtonWidth; j++) {
+      const c = buttonsStartCol + j;
       if (c >= 0 && c < COLS) {
         msgCells.add(`${bRow}-${c}`);
       }
@@ -116,7 +121,7 @@ function computeMessagePosition(
     messageCells: msgCells,
     top: startRow * lineHeight,
     buttonRow,
-    buttonStartCol,
+    buttonsStartCol,
   };
 }
 
@@ -134,9 +139,10 @@ export default function Home() {
     startRow: number;
     centerCol: number;
     buttonRow: number;
-    buttonStartCol: number;
+    buttonsStartCol: number;
   } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [copied, setCopied] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const visibleRef = useRef<Set<string>>(new Set());
   const messageCellsRef = useRef<Set<string>>(new Set());
@@ -156,7 +162,10 @@ export default function Home() {
       .then((data) => {
         setValentines(data);
         if (data.length > 0) {
-          setCurrentValentine(data[Math.floor(Math.random() * data.length)]);
+          const params = new URLSearchParams(window.location.search);
+          const vId = params.get("v");
+          const match = vId ? data.find((v: Valentine) => String(v.id) === vId) : null;
+          setCurrentValentine(match ?? data[Math.floor(Math.random() * data.length)]);
         }
       });
   }, []);
@@ -202,7 +211,7 @@ export default function Home() {
       startRow: pos.startRow,
       centerCol: pos.centerCol,
       buttonRow: pos.buttonRow,
-      buttonStartCol: pos.buttonStartCol,
+      buttonsStartCol: pos.buttonsStartCol,
     });
   }, [metrics, lines]);
 
@@ -384,6 +393,15 @@ export default function Home() {
     return () => clearInterval(id);
   }, [metrics]);
 
+  const shareValentine = () => {
+    if (!currentValentine) return;
+    const url = `${window.location.origin}/v/${currentValentine.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   const getNewValentine = () => {
     if (valentines.length === 0) return;
 
@@ -430,21 +448,35 @@ export default function Home() {
           </div>
         )}
         {metrics && messagePos && currentValentine && (
-          <button
-            onClick={getNewValentine}
-            className="pointer-events-auto border-2 border-current rounded-lg bg-transparent -translate-x-1/2 hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+          <div
+            className="pointer-events-auto"
             style={{
               position: "absolute",
               top: messagePos.buttonRow * metrics.lineHeight - 8,
               left: "50%",
-              padding: "6px 10px",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: "8px",
               lineHeight: "1.2",
               whiteSpace: "pre",
-              cursor: "pointer",
             }}
           >
-            {BUTTON_TEXT}
-          </button>
+            <button
+              onClick={getNewValentine}
+              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+              style={{ padding: "6px 10px", cursor: "pointer" }}
+            >
+              {BUTTON_TEXT}
+            </button>
+            <span style={{ color: "#B2004A" }}> </span>
+            <button
+              onClick={shareValentine}
+              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+              style={{ padding: "6px 10px", cursor: "pointer", minWidth: `${Math.max(SHARE_TEXT.length, COPIED_TEXT.length) + 2}ch` }}
+            >
+              {copied ? COPIED_TEXT : SHARE_TEXT}
+            </button>
+          </div>
         )}
       </div>
     </>

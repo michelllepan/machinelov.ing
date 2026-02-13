@@ -5,6 +5,7 @@ import "./globals.css";
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://learning.love"),
   title: "ml valentines",
   description: "machine learning is a love language too",
 };
