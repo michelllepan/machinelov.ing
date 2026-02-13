@@ -144,7 +144,7 @@ export default function Home() {
   const lines = useMemo(
     () => {
       if (!currentValentine) return [];
-      const width = isMobile ? Math.floor(window.innerWidth / (metrics?.charWidth ?? 8)) - 2 : MESSAGE_WIDTH;
+      const width = isMobile ? Math.floor(window.innerWidth / (metrics?.charWidth ?? 8)) - 4 : MESSAGE_WIDTH;
       return wrapText(currentValentine.message, Math.min(width, MESSAGE_WIDTH));
     },
     [currentValentine, isMobile, metrics]
