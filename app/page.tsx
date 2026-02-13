@@ -481,6 +481,15 @@ export default function Home() {
           </div>
         )}
       </div>
+      <button
+        onClick={() => (window.location.href = "/about")}
+        className="fixed top-4 right-4 border-2 border-current rounded-lg bg-transparent hover:bg-[#FFEFF4] transition-all duration-200"
+        style={{ padding: "6px 10px", cursor: "pointer", lineHeight: 1, color: "#E57FA9"}}
+        aria-label="About"
+        type="button"
+      >
+        i
+      </button>
     </>
   );
 }
