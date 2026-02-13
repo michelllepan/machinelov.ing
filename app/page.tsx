@@ -284,7 +284,7 @@ export default function Home() {
       <div
         ref={gridRef}
         className="fixed inset-0 overflow-hidden select-none pointer-events-none"
-        style={{ lineHeight: "1.2" }}
+        style={{ lineHeight: "1.2", backgroundImage: "radial-gradient(ellipse 400px 250px at center, #ffd0b090 0%, transparent 100%)" }}
       >
         <BackgroundGrid />
         {metrics && messagePos && lines.length > 0 && (
