@@ -98,7 +98,7 @@ function computeMessagePosition(
   // Button row: offset from the bottom of the visible area (more room when stacked on mobile)
   const totalVisibleRows = Math.floor(window.innerHeight / lineHeight);
   const isMobileLayout = window.innerWidth < 768;
-  const buttonRow = Math.min(totalVisibleRows - (isMobileLayout ? 8 : 5), ROWS - 1);
+  const buttonRow = Math.min(totalVisibleRows - (isMobileLayout ? 7 : 5), ROWS - 1);
   const shareTextLen = Math.max(SHARE_TEXT.length, COPIED_TEXT.length) + BUTTON_PADDING_COLS * 2;
   const buttonTextLen = BUTTON_TEXT.length + BUTTON_PADDING_COLS * 2;
   const gap = 2; // chars between buttons

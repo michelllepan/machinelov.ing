@@ -29,13 +29,13 @@ export function generateMetadata({
       openGraph: {
         title: "ml valentines",
         description: v.message,
-        images: [`/og/v-${v.id}.png`],
+        images: [`/og/v-${v.id}.jpeg`],
       },
       twitter: {
         card: "summary_large_image",
         title: "ml valentines",
         description: v.message,
-        images: [`/og/v-${v.id}.png`],
+        images: [`/og/v-${v.id}.jpeg`],
       },
     };
   });

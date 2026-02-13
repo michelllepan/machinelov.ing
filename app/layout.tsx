@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ml valentines",
     description: "machine learning is a love language too",
-    images: ["/og/base.jpeg"],
+    images: ["/og/base.jpg"],
   },
 };
 
