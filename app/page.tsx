@@ -398,7 +398,7 @@ export default function Home() {
             style={{
               position: "absolute",
               top: messagePos.buttonRow * metrics.lineHeight - 8,
-              left: (messagePos.buttonStartCol) * metrics.charWidth,
+              left: (messagePos.buttonStartCol) * metrics.charWidth + 3,
               padding: "6px 10px",
               lineHeight: "1.2",
               whiteSpace: "pre",
