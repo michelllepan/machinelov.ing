@@ -95,9 +95,10 @@ function computeMessagePosition(
     }
   }
 
-  // Button row: ~5 rows from the bottom of the visible area
+  // Button row: offset from the bottom of the visible area (more room when stacked on mobile)
   const totalVisibleRows = Math.floor(window.innerHeight / lineHeight);
-  const buttonRow = Math.min(totalVisibleRows - 5, ROWS - 1);
+  const isMobileLayout = window.innerWidth < 768;
+  const buttonRow = Math.min(totalVisibleRows - (isMobileLayout ? 8 : 5), ROWS - 1);
   const shareTextLen = Math.max(SHARE_TEXT.length, COPIED_TEXT.length) + BUTTON_PADDING_COLS * 2;
   const buttonTextLen = BUTTON_TEXT.length + BUTTON_PADDING_COLS * 2;
   const gap = 2; // chars between buttons
@@ -456,7 +457,9 @@ export default function Home() {
               left: "50%",
               transform: "translateX(-50%)",
               display: "flex",
-              gap: "8px",
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: "center",
+              gap: "20px",
               lineHeight: "1.2",
               whiteSpace: "pre",
             }}
@@ -468,7 +471,6 @@ export default function Home() {
             >
               {BUTTON_TEXT}
             </button>
-            <span style={{ color: "#B2004A" }}> </span>
             <button
               onClick={shareValentine}
               className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
