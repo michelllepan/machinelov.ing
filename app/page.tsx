@@ -313,8 +313,9 @@ export default function Home() {
       ([r, c]) => r < visibleRows && c < visibleCols
     );
 
-    // ~0.2% of visible hearts twinkling at any moment
-    const count = Math.max(1, Math.floor(visibleHearts.length * 0.002));
+    // Higher density on mobile to compensate for fewer visible hearts
+    const twinkleRate = visibleCols < 60 ? 0.01 : 0.002;
+    const count = Math.max(1, Math.floor(visibleHearts.length * twinkleRate));
     const TWINKLE_IN = 1000;
     const TWINKLE_HOLD = 500;
     const TWINKLE_OUT = 1000;
