@@ -234,17 +234,17 @@ export default function Home() {
     visibleRef.current = new Set();
   }, [currentValentine]);
 
-  // Mousemove handler
+  // Mousemove + touch drag handler
   useEffect(() => {
     const container = gridRef.current;
     if (!container || !metrics) return;
 
     const { charWidth, lineHeight } = metrics;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const revealAt = (clientX: number, clientY: number) => {
       const rect = container.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const mx = clientX - rect.left;
+      const my = clientY - rect.top;
 
       const minCol = Math.max(0, Math.floor((mx - THRESHOLD) / charWidth));
       const maxCol = Math.min(
@@ -297,8 +297,35 @@ export default function Home() {
       visibleRef.current = newVisible;
     };
 
+    const handleMouseMove = (e: MouseEvent) => revealAt(e.clientX, e.clientY);
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (touch) revealAt(touch.clientX, touch.clientY);
+    };
+
+    const handleTouchEnd = () => {
+      for (const key of visibleRef.current) {
+        const [r, c] = key.split("-").map(Number);
+        const span = container.children[r]?.children[c] as HTMLElement;
+        if (span) {
+          span.style.transition = "none";
+          span.style.opacity = "0";
+        }
+      }
+      visibleRef.current = new Set();
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("touchstart", handleTouchMove);
+    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchstart", handleTouchMove);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
   }, [metrics]);
 
   // Twinkle effect — randomly fade hearts in and out
