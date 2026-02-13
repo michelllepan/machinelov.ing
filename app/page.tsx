@@ -93,9 +93,9 @@ function computeMessagePosition(
     }
   }
 
-  // Button row: ~12 rows from the bottom of the visible area
+  // Button row: ~5 rows from the bottom of the visible area
   const totalVisibleRows = Math.floor(window.innerHeight / lineHeight);
-  const buttonRow = Math.min(totalVisibleRows - 12, ROWS - 1);
+  const buttonRow = Math.min(totalVisibleRows - 5, ROWS - 1);
   const buttonTextLen = BUTTON_TEXT.length + BUTTON_PADDING_COLS * 2;
   const buttonStartCol = Math.floor(centerCol - buttonTextLen / 2);
 
@@ -394,16 +394,14 @@ export default function Home() {
         {metrics && messagePos && currentValentine && (
           <button
             onClick={getNewValentine}
-            className="pointer-events-auto border-2 border-current rounded-lg"
+            className="pointer-events-auto border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
             style={{
               position: "absolute",
               top: messagePos.buttonRow * metrics.lineHeight - 8,
               left: (messagePos.buttonStartCol) * metrics.charWidth,
-              // padding: `0 ${BUTTON_PADDING_COLS * metrics.charWidth}px`,
               padding: "6px 10px",
               lineHeight: "1.2",
               whiteSpace: "pre",
-              background: "none",
               cursor: "pointer",
               float: "left",
             }}
