@@ -7,6 +7,8 @@ const COLS = 160;
 const ROWS = 60;
 const THRESHOLD = 12;
 const MESSAGE_WIDTH = 36;
+const BUTTON_TEXT = "new valentine";
+const BUTTON_PADDING_COLS = 1; // chars of horizontal padding inside the border
 
 interface Valentine {
   id: number;
@@ -73,11 +75,30 @@ function computeMessagePosition(
     }
   }
 
+  // Button row: ~3 rows from the bottom of the visible area
+  const totalVisibleRows = Math.floor(window.innerHeight / lineHeight);
+  const buttonRow = Math.min(totalVisibleRows - 3, ROWS - 1);
+  const buttonTextLen = BUTTON_TEXT.length + BUTTON_PADDING_COLS * 2;
+  const buttonStartCol = Math.floor(centerCol - buttonTextLen / 2);
+
+  // Mark button cells as message cells so hover doesn't reveal hearts behind them
+  const bRow = buttonRow;
+  if (bRow >= 0 && bRow < ROWS) {
+    for (let j = 0; j < buttonTextLen; j++) {
+      const c = buttonStartCol + j;
+      if (c >= 0 && c < COLS) {
+        msgCells.add(`${bRow}-${c}`);
+      }
+    }
+  }
+
   return {
     startRow,
     centerCol,
     messageCells: msgCells,
     top: startRow * lineHeight,
+    buttonRow,
+    buttonStartCol,
   };
 }
 
@@ -94,6 +115,8 @@ export default function Home() {
     top: number;
     startRow: number;
     centerCol: number;
+    buttonRow: number;
+    buttonStartCol: number;
   } | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const visibleRef = useRef<Set<string>>(new Set());
@@ -151,7 +174,13 @@ export default function Home() {
     }
 
     messageCellsRef.current = pos.messageCells;
-    setMessagePos({ top: pos.top, startRow: pos.startRow, centerCol: pos.centerCol });
+    setMessagePos({
+      top: pos.top,
+      startRow: pos.startRow,
+      centerCol: pos.centerCol,
+      buttonRow: pos.buttonRow,
+      buttonStartCol: pos.buttonStartCol,
+    });
   }, [metrics, lines]);
 
   useEffect(() => {
@@ -283,17 +312,27 @@ export default function Home() {
             })}
           </div>
         )}
-      </div>
-      {currentValentine && (
-        <div className="fixed bottom-0 left-0 right-0 pb-12 text-center pointer-events-none">
+        {metrics && messagePos && currentValentine && (
           <button
             onClick={getNewValentine}
-            className="pointer-events-auto px-2.5 py-1 border-2 border-current rounded-lg"
+            className="pointer-events-auto border-2 border-current rounded-lg"
+            style={{
+              position: "absolute",
+              top: messagePos.buttonRow * metrics.lineHeight - 8,
+              left: (messagePos.buttonStartCol) * metrics.charWidth,
+              // padding: `0 ${BUTTON_PADDING_COLS * metrics.charWidth}px`,
+              padding: "6px 10px",
+              lineHeight: "1.2",
+              whiteSpace: "pre",
+              background: "none",
+              cursor: "pointer",
+              float: "left",
+            }}
           >
-            new valentine
+            {BUTTON_TEXT}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }
