@@ -136,13 +136,18 @@ export default function Home() {
     buttonRow: number;
     buttonStartCol: number;
   } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const visibleRef = useRef<Set<string>>(new Set());
   const messageCellsRef = useRef<Set<string>>(new Set());
 
   const lines = useMemo(
-    () => (currentValentine ? wrapText(currentValentine.message, MESSAGE_WIDTH) : []),
-    [currentValentine]
+    () => {
+      if (!currentValentine) return [];
+      const width = isMobile ? Math.floor(window.innerWidth / (metrics?.charWidth ?? 8)) - 2 : MESSAGE_WIDTH;
+      return wrapText(currentValentine.message, Math.min(width, MESSAGE_WIDTH));
+    },
+    [currentValentine, isMobile, metrics]
   );
 
   useEffect(() => {
@@ -203,11 +208,15 @@ export default function Home() {
 
   useEffect(() => {
     updatePosition();
+    setIsMobile(window.innerWidth < 768);
   }, [updatePosition]);
 
   useEffect(() => {
     if (!metrics) return;
-    const handleResize = () => updatePosition();
+    const handleResize = () => {
+      updatePosition();
+      setIsMobile(window.innerWidth < 768);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [metrics, updatePosition]);
@@ -374,17 +383,18 @@ export default function Home() {
               left: 0,
               right: 0,
               lineHeight: "1.2",
-              whiteSpace: "pre",
+              whiteSpace: isMobile ? "pre-wrap" : "pre",
             }}
           >
             {lines.map((line, i) => {
               const startCol = Math.floor(messagePos.centerCol - line.length / 2);
               return (
-                <div key={i} style={{ whiteSpace: "pre" }}>
-                  {/* Invisible spacer to align to grid column */}
-                  <span style={{ visibility: "hidden" }}>
-                    {bgRows[messagePos.startRow + i]?.slice(0, startCol) ?? ""}
-                  </span>
+                <div key={i} style={{ whiteSpace: isMobile ? "pre-wrap" : "pre", textAlign: isMobile ? "center" : undefined }}>
+                  {!isMobile && (
+                    <span style={{ visibility: "hidden" }}>
+                      {bgRows[messagePos.startRow + i]?.slice(0, startCol) ?? ""}
+                    </span>
+                  )}
                   {line}
                 </div>
               );
