@@ -466,14 +466,14 @@ export default function Home() {
           >
             <button
               onClick={getNewValentine}
-              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] active:translate-y-[0.3] active:bg-[#FFC199] transition-all duration-200"
               style={{ padding: "6px 10px", cursor: "pointer" }}
             >
               {BUTTON_TEXT}
             </button>
             <button
               onClick={shareValentine}
-              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] transition-all duration-200"
+              className="border-2 border-current rounded-lg bg-transparent hover:-translate-y-0.5 hover:bg-[#FFCFB0] active:translate-y-[0.3] active:bg-[#FFC199] transition-all duration-200"
               style={{ padding: "6px 10px", cursor: "pointer", minWidth: `${Math.max(SHARE_TEXT.length, COPIED_TEXT.length) + 2}ch` }}
             >
               {copied ? COPIED_TEXT : SHARE_TEXT}
