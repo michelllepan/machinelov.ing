@@ -476,7 +476,7 @@
     },
     {
       "id": 119,
-      "message": "when you're around im h1. i must be a prompt because i want to inject myself in you"
+      "message": "i must be a prompt because i want to inject myself in you"
     },
     {
       "id": 120,
@@ -496,11 +496,11 @@
     },
     {
       "id": 124,
-      "message": "I want to iterate on your policy til you converge"
+      "message": "i want to iterate on your policy til you converge"
     },
     {
       "id": 125,
-      "message": "I want to regress on your ridge until it shrinks"
+      "message": "i want to regress on your ridge until it shrinks"
     },
     {
       "id": 126,
@@ -512,11 +512,11 @@
     },
     {
       "id": 128,
-      "message": "things are heating up. wanna switch from cpu to gpu so we can go faster?"
+      "message": "things are heating up. wanna switch from CPU to GPU so we can go faster?"
     },
     {
       "id": 129,
-      "message": "ai shouldn't be a black box and neither should you. let me probe your insides"
+      "message": "AI shouldn't be a black box and neither should you. let me probe your insides"
     },
     {
       "id": 130,
@@ -544,7 +544,7 @@
     },
     {
       "id": 136,
-      "message": "are you a chinese LLM? because all i seek is to go deep"
+      "message": "are you a Chinese LLM? because all i seek is to go deep"
     },
     {
       "id": 137,
@@ -552,7 +552,7 @@
     },
     {
       "id": 138,
-      "message": "you render my gaussians til they splat"
+      "message": "you render my Gaussians til they splat"
     },
     {
       "id": 139,
@@ -572,7 +572,7 @@
     },
     {
       "id": 143,
-      "message": "you make me thirstier than a datacenter"
+      "message": "you make me thirstier than a data center"
     },
     {
       "id": 144,
