@@ -127,12 +127,12 @@ function computeMessagePosition(
 }
 
 interface ValentineGridProps {
-  listKey: "mild" | "spicy";
+  initialValentines: Valentine[];
   basePath: string; // "" for root, "/spicy" for spicy
 }
 
-export default function ValentineGrid({ listKey, basePath }: ValentineGridProps) {
-  const [valentines, setValentines] = useState<Valentine[]>([]);
+export default function ValentineGrid({ initialValentines, basePath }: ValentineGridProps) {
+  const [valentines] = useState<Valentine[]>(initialValentines);
   const [currentValentine, setCurrentValentine] = useState<Valentine | null>(
     null
   );
@@ -163,19 +163,13 @@ export default function ValentineGrid({ listKey, basePath }: ValentineGridProps)
   );
 
   useEffect(() => {
-    fetch("/valentines.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const list = data[listKey] || [];
-        setValentines(list);
-        if (list.length > 0) {
-          const params = new URLSearchParams(window.location.search);
-          const vId = params.get("v");
-          const match = vId ? list.find((v: Valentine) => String(v.id) === vId) : null;
-          setCurrentValentine(match ?? list[Math.floor(Math.random() * list.length)]);
-        }
-      });
-  }, [listKey]);
+    if (valentines.length > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const vId = params.get("v");
+      const match = vId ? valentines.find((v: Valentine) => String(v.id) === vId) : null;
+      setCurrentValentine(match ?? valentines[Math.floor(Math.random() * valentines.length)]);
+    }
+  }, [valentines]);
 
   // Measure character dimensions once
   useEffect(() => {
