@@ -17,9 +17,10 @@ const PADDING = 50; // Spacing from edges
 const MAX_TEXT_WIDTH = WIDTH - (PADDING * 2) - 300;
 const TITLE = "machinelov.ing";
 
-const valentines: Valentine[] = JSON.parse(
+const data = JSON.parse(
   readFileSync(join(__dirname, "../public/valentines.json"), "utf-8")
 );
+const valentines: Valentine[] = [...data.mild, ...data.spicy];
 
 const outDir = join(__dirname, "../public/og");
 mkdirSync(outDir, { recursive: true });

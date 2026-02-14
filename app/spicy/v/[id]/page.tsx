@@ -1,19 +1,19 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
-import valentines from "../../../public/valentines.json";
+import valentines from "../../../../public/valentines.json";
 
 interface Valentine {
   id: number;
   message: string;
 }
 
-const allMild = valentines.mild as Valentine[];
+const allSpicy = valentines.spicy as Valentine[];
 const valentineMap = new Map(
-  allMild.map((v) => [String(v.id), v])
+  allSpicy.map((v) => [String(v.id), v])
 );
 
 export function generateStaticParams() {
-  return allMild.map((v) => ({ id: String(v.id) }));
+  return allSpicy.map((v) => ({ id: String(v.id) }));
 }
 
 export function generateMetadata({
@@ -25,16 +25,16 @@ export function generateMetadata({
     const v = valentineMap.get(id);
     if (!v) return {};
     return {
-      title: "ml valentines",
+      title: "ml valentines (spicy)",
       description: v.message,
       openGraph: {
-        title: "ml valentines",
+        title: "ml valentines (spicy)",
         description: v.message,
         images: [`/og/v-${v.id}.jpeg`],
       },
       twitter: {
         card: "summary_large_image",
-        title: "ml valentines",
+        title: "ml valentines (spicy)",
         description: v.message,
         images: [`/og/v-${v.id}.jpeg`],
       },
@@ -42,11 +42,11 @@ export function generateMetadata({
   });
 }
 
-export default async function ValentinePage({
+export default async function SpicyValentinePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/?v=${id}`);
+  redirect(`/spicy?v=${id}`);
 }
